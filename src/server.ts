@@ -14,7 +14,7 @@ enum Method {
 }
 
 async function rest(num: number) {
-  await Aigle.timesSeries(Number(num), async (i) => {
+  await Aigle.timesLimit(Number(num), async (i) => {
     const body: MessageBody = {
       userId: "taka",
       achievementId: `a${i}`,
@@ -29,7 +29,7 @@ async function sqs(num: number) {
     endpoint: config.sqs.endpoint,
   });
   const queueUrl = `${config.sqs.urlPrefix}${config.sqs.names.achievementQueue}`;
-  await Aigle.timesSeries(Number(num), async (i) => {
+  await Aigle.timesLimit(Number(num), async (i) => {
     const body: MessageBody = {
       userId: "taka",
       achievementId: `a${i}`,
@@ -42,6 +42,7 @@ async function sqs(num: number) {
 
 async function main() {
   console.time("runTime");
+  console.log('START!');
   const [num, method] = process.argv.slice(2);
   const n = Number(num);
   switch (method) {
@@ -54,7 +55,7 @@ async function main() {
       break;
     }
   }
-  console.log('DONE!!!!!!!!!!!!!!!!!');
+  console.log('DONE!');
   console.timeEnd("runTime");
 }
 
