@@ -2,6 +2,9 @@ import * as aws from "aws-sdk";
 import axios from "axios";
 import Aigle from "aigle";
 import { config } from "../configs";
+import * as cluster from "cluster";
+
+const forks = require("os").cpus().length;
 
 interface MessageBody {
   userId: string;
@@ -42,7 +45,7 @@ async function sqs(num: number) {
 
 async function main() {
   console.time("runTime");
-  console.log('START!');
+  console.log("START!");
   const [num, method] = process.argv.slice(2);
   const n = Number(num);
   switch (method) {
@@ -55,16 +58,23 @@ async function main() {
       break;
     }
   }
-  console.log('DONE!');
+  console.log("DONE!");
   console.timeEnd("runTime");
 }
 
-(async () => {
-  try {
-    await main();
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
+if (cluster.isMaster) {
+  console.log(`[${process.pid}] I am master`);
+  for (let i = 0; i < forks; i++) {
+    cluster.fork();
   }
-})();
-
+} else {
+  console.log(`[${process.pid}] I am worker`);
+}
+// (async () => {
+//   try {
+//     await main();
+//   } catch (err) {
+//     console.error(err);
+//     process.exit(1);
+//   }
+// })();
